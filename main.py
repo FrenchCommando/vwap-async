@@ -1,5 +1,7 @@
-import datetime
 import asyncio
+import datetime
+
+import aiohttp
 
 
 def print_current():
@@ -34,17 +36,15 @@ async def process_and_revert(price, volume):
 
 
 async def main():
+    session = aiohttp.ClientSession()
     now = datetime.datetime.now()
-    print(now)
-    asyncio.create_task(process_and_revert(price=100, volume=1))
-    await asyncio.sleep(2)
-    asyncio.create_task(process_and_revert(price=200, volume=3))
-    await asyncio.sleep(9)
-    asyncio.create_task(process_and_revert(price=500, volume=2))
-    await asyncio.sleep(15)
+    async with session.ws_connect('wss://stream.binance.com:9443/ws/btcusdt@trade') as ws:
+        async for msg in ws:
+            rep_json = msg.json()
+            asyncio.create_task(process_and_revert(price=float(rep_json['p']), volume=float(rep_json['q'])))
 
 
-time_window_seconds = 10
+time_window_seconds = 60
 current_price_times_volume = 0
 current_volume = 0
 
