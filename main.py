@@ -53,9 +53,13 @@ async def main_short():
     await asyncio.sleep(10)
 
 
-if __name__ == '__main__':
+def main():
     short_only = False
     if short_only:
         asyncio.run(main_short())
     else:
         asyncio.run(main_binance())
+
+
+if __name__ == '__main__':
+    main()
